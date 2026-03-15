@@ -163,6 +163,7 @@ async function update() {
                   state: other.state || "",
                   action: other.typeName,
                 }),
+                timePassedStr,
               );
 
         const emoji =
