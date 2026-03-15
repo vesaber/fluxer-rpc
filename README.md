@@ -1,15 +1,3 @@
-# fluxer-rpc
+# discord + last.fm to fluxer RPC
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.3.10. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+wip, you can figure it out yourself if you want to! it's just a lil file
