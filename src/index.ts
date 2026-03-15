@@ -86,12 +86,12 @@ function setPresence(load: GatewayPresenceUpdateData) {
     console.log("user still loading...");
     return;
   }
-  console.log("set presence to:", load);
   if (JSON.stringify(lastPresence) === JSON.stringify(load)) {
     console.log("same presence");
     return;
   }
   client.user.setPresence(load).then(() => {
+    console.log("set presence to:", load);
     lastPresence = load;
   });
 }
