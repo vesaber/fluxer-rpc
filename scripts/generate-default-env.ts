@@ -1,4 +1,4 @@
-import { envSchema, statusSchema } from "../src/env";
+import { envSchema, statusSchema } from "../src/env-schema";
 
 const schema = envSchema;
 
