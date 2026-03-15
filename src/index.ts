@@ -79,9 +79,21 @@ async function getLastFmNowPlaying() {
   }
 }
 
+let lastPresence: object | undefined;
+
 function setPresence(load: GatewayPresenceUpdateData) {
-  console.log("SET PRESENCE TO", load);
-  client.user?.setPresence(load);
+  if (!client.user) {
+    console.log("user still loading...");
+    return;
+  }
+  console.log("set presence to:", load);
+  if (JSON.stringify(lastPresence) === JSON.stringify(load)) {
+    console.log("same presence");
+    return;
+  }
+  client.user.setPresence(load).then(() => {
+    lastPresence = load;
+  });
 }
 
 async function update() {
