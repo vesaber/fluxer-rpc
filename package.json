@@ -1,6 +1,6 @@
 {
   "name": "fluxer-rpc",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -13,7 +13,9 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@t3-oss/env-core": "^0.13.10",
     "fluxer-selfbot": "^1.0.1",
-    "ky": "^1.14.3"
+    "ky": "^1.14.3",
+    "zod": "^4.3.6"
   }
 }

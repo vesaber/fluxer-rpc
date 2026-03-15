@@ -1,24 +1,20 @@
 import ky from "ky";
-import { Client, type GatewayPresenceUpdateData } from "fluxer-selfbot";
+import {
+  Client,
+  type GatewayPresenceUpdateData,
+} from "fluxer-selfbot"; /* i dont trust this lib at all */
 import { type RawUserPresenceResponse } from "./types";
+import { env } from "./env";
 
+/* been getting weird ssl https errors so this will do */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 process.env.BUN_SSL_NO_VERIFY = "1";
-
-const token = process.env.TOKEN;
-if (!token) throw new Error("No token");
-const dsId = process.env.DISCORD_ID;
-if (!dsId) throw new Error("No DISCORD_ID");
-const lastfmUser = process.env.LASTFM_USER;
-if (!lastfmUser) throw new Error("No LASTFM_USER");
-const lastfmKey = process.env.LASTFM_KEY;
-if (!lastfmKey) throw new Error("No LASTFM_KEY");
 
 const client = new Client({ intents: 0 });
 
 async function getDiscordPresence() {
   const presence = await ky
-    .get(`http://discord-presence-api.johnrich.dev/user/${dsId}`)
+    .get(`http://discord-presence-api.johnrich.dev/user/${env.DISCORD_ID}`)
     .json<RawUserPresenceResponse>();
 
   const miscOther = presence.activities.filter(
@@ -27,21 +23,15 @@ async function getDiscordPresence() {
 
   const _spotify = presence.activities.find((e) => e.name === "Spotify");
   const _feishin = presence.activities.find((e) => e.name === "Feishin");
+  const music = _spotify || _feishin;
 
   let spotifyInfo = null;
-  if (_spotify) {
+  if (music) {
     spotifyInfo = {
-      songName: _spotify.details,
-      artistName: _spotify.state,
-      start: _spotify.timestamps.start,
-      end: _spotify.timestamps.end,
-    };
-  } else if (_feishin) {
-    spotifyInfo = {
-      songName: _feishin.details,
-      artistName: _feishin.state,
-      start: _feishin.timestamps.start,
-      end: _feishin.timestamps.end,
+      songName: music.details,
+      artistName: music.state,
+      start: music.timestamps.start,
+      end: music.timestamps.end,
     };
   }
 
@@ -59,13 +49,14 @@ function timePassedToString(ms: number) {
 }
 
 async function getLastFmNowPlaying() {
+  if (!env.LASTFM_USER || !env.LASTFM_KEY) return null;
   try {
     const data = await ky
       .get("https://ws.audioscrobbler.com/2.0/", {
         searchParams: {
           method: "user.getrecenttracks",
-          user: lastfmUser,
-          api_key: lastfmKey,
+          user: env.LASTFM_USER,
+          api_key: env.LASTFM_KEY,
           limit: "1",
           format: "json",
         },
@@ -123,17 +114,29 @@ async function update() {
       }
 
       /* discord game */
-      if (discord.other.length > 0 && discord.other[0]) {
-        const other = discord.other[0];
+      const otherOrdered = discord.other.sort((a, b) => {
+        if (a.name === "Visual Studio Code") return -1;
+        return 1;
+      });
+
+      if (otherOrdered.length > 0 && otherOrdered[0]) {
+        const other = otherOrdered[0];
         const startTime = new Date(other.timestamps.start);
         const now = new Date();
         const timePassed = now.getTime() - startTime.getTime();
 
+        const text =
+          other.name === "Visual Studio Code"
+            ? `Playing ${other.name} (${timePassedToString(timePassed)})`
+            : `Coding... (${timePassedToString(timePassed)})`;
+
+        const emoji = other.name === "Visual Studio Code" ? "🎮" : "💻";
+
         setPresence({
           status: "online",
           custom_status: {
-            text: `Playing ${other.name} (${timePassedToString(timePassed)})`,
-            emoji_name: "🎮",
+            text,
+            emoji_name: emoji,
           },
         });
         return;
@@ -142,7 +145,10 @@ async function update() {
       /* default */
       setPresence({
         status: "online",
-        custom_status: { text: "hiii", emoji_name: "🐬" },
+        custom_status: {
+          text: env.DEFAULT_STATUS_TEXT,
+          emoji_name: env.DEFAULT_STATUS_EMOJI,
+        },
       });
       return;
     }
@@ -175,4 +181,4 @@ client.on("ready", async () => {
   }
 });
 
-client.login(token!);
+client.login(env.TOKEN);
