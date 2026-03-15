@@ -1,0 +1,198 @@
+export interface LanyardSpotify {
+  track_id: string;
+  timestamps: {
+    start: number;
+    end: number;
+  };
+  song: string;
+  artist: string;
+  album_art_url: string;
+  album: string;
+  details?: string;
+  state?: string;
+}
+
+export interface LanyardActivity {
+  name: string;
+  type: number;
+  typeName: string;
+  details?: string;
+  state?: string;
+  timestamps?: {
+    start?: number;
+    end?: number;
+  };
+  assets?: {
+    large_text?: string;
+    large_image?: string;
+  };
+  artist: string;
+  song: string;
+  album: string;
+  albumArt: string;
+}
+
+export interface LanyardPresence {
+  active_on_discord_mobile: boolean;
+  active_on_discord_desktop: boolean;
+  listening_to_spotify: boolean;
+  spotify: LanyardSpotify | null;
+  discord_user: {
+    username: string;
+    public_flags: number;
+    id: string;
+    discriminator: string;
+    avatar: string;
+  };
+  discord_status: string;
+  activities: LanyardActivity[];
+  kv: Record<string, string>;
+}
+
+export interface DiscordPresence {
+  isOnline: boolean;
+  other: LanyardActivity[];
+  spotifyInfo: {
+    songName: string | undefined;
+    artistName: string | undefined;
+    start: number | undefined;
+    end: number | undefined;
+  } | null;
+}
+
+enum LanyardOpcode {
+  Event = 0,
+  Hello = 1,
+  Initialize = 2,
+  Heartbeat = 3,
+}
+
+interface LanyardMessage {
+  op: LanyardOpcode;
+  t?: string;
+  d?: any;
+  seq?: number;
+}
+
+let ws: WebSocket | null = null;
+let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+let currentPresence: LanyardPresence | null = null;
+let onPresenceUpdate: (() => void) | null = null;
+
+export function setOnPresenceUpdate(callback: () => void) {
+  onPresenceUpdate = callback;
+}
+
+function getActivityTypeName(type: number): string {
+  switch (type) {
+    case 0:
+      return "Playing";
+    case 1:
+      return "Streaming";
+    case 2:
+      return "Listening";
+    case 3:
+      return "Watching";
+    case 4:
+      return "Custom";
+    case 5:
+      return "Competing";
+    default:
+      return "Unknown";
+  }
+}
+
+function normalizeActivity(activity: LanyardActivity): LanyardActivity {
+  return {
+    ...activity,
+    typeName: getActivityTypeName(activity.type),
+    artist: "",
+    song: "",
+    album: "",
+    albumArt: "",
+  };
+}
+
+export function connectLanyard(discordId: string) {
+  ws = new WebSocket("wss://api.lanyard.rest/socket");
+
+  ws.onopen = () => {
+    console.log("connected to lanyard!!");
+  };
+
+  ws.onmessage = (event) => {
+    const message: LanyardMessage = JSON.parse(event.data);
+
+    switch (message.op) {
+      case LanyardOpcode.Hello: {
+        const heartbeatIntervalMs = message.d.heartbeat_interval;
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        heartbeatInterval = setInterval(() => {
+          ws?.send(JSON.stringify({ op: LanyardOpcode.Heartbeat }));
+        }, heartbeatIntervalMs);
+        ws?.send(
+          JSON.stringify({
+            op: LanyardOpcode.Initialize,
+            d: { subscribe_to_id: discordId },
+          }),
+        );
+        break;
+      }
+
+      case LanyardOpcode.Event:
+        if (message.t === "INIT_STATE" || message.t === "PRESENCE_UPDATE") {
+          currentPresence = message.d;
+          onPresenceUpdate?.();
+        }
+        break;
+    }
+  };
+
+  ws.onclose = (e) => {
+    console.log("reconnecting to lanyard...", e.code);
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    setTimeout(() => connectLanyard(discordId), 5000);
+  };
+
+  ws.onerror = (e) => {
+    console.error("lanyard socket error:", e);
+  };
+}
+
+export function getDiscordPresence(): DiscordPresence | null {
+  if (!currentPresence) {
+    return null;
+  }
+
+  const discordStatus = currentPresence.discord_status;
+  const activities = currentPresence.activities || [];
+  const spotify = currentPresence.spotify;
+
+  const miscOther = activities.filter((e) => !["Spotify", "Feishin"].includes(e.name));
+
+  let spotifyInfo = null;
+  if (spotify) {
+    spotifyInfo = {
+      songName: spotify.details,
+      artistName: spotify.state,
+      start: spotify.timestamps.start,
+      end: spotify.timestamps.end,
+    };
+  }
+
+  const feishinActivity = activities.find((e) => e.name === "Feishin");
+  if (feishinActivity) {
+    spotifyInfo = {
+      songName: feishinActivity.details,
+      artistName: feishinActivity.state,
+      start: feishinActivity.timestamps?.start,
+      end: feishinActivity.timestamps?.end,
+    };
+  }
+
+  return {
+    isOnline: discordStatus !== "offline",
+    other: miscOther.map(normalizeActivity),
+    spotifyInfo,
+  };
+}

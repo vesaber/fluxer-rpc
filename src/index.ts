@@ -3,44 +3,10 @@ import {
   Client,
   type GatewayPresenceUpdateData,
 } from "fluxer-selfbot"; /* i dont trust this lib at all */
-import { type RawUserPresenceResponse } from "./types";
+import { connectLanyard, getDiscordPresence, setOnPresenceUpdate } from "./lanyard";
 import { env } from "./env";
 
-/* been getting weird ssl https errors so this will do */
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-process.env.BUN_SSL_NO_VERIFY = "1";
-
 const client = new Client({ intents: 0 });
-
-async function getDiscordPresence() {
-  const presence = await ky
-    .get(`http://discord-presence-api.johnrich.dev/user/${env.DISCORD_ID}`)
-    .json<RawUserPresenceResponse>();
-
-  const miscOther = presence.activities.filter(
-    (e) => !["Spotify", "Feishin"].includes(e.name),
-  );
-
-  const _spotify = presence.activities.find((e) => e.name === "Spotify");
-  const _feishin = presence.activities.find((e) => e.name === "Feishin");
-  const music = _spotify || _feishin;
-
-  let spotifyInfo = null;
-  if (music) {
-    spotifyInfo = {
-      songName: music.details,
-      artistName: music.state,
-      start: music.timestamps.start,
-      end: music.timestamps.end,
-    };
-  }
-
-  return {
-    isOnline: presence.status !== "offline",
-    other: miscOther,
-    spotifyInfo,
-  };
-}
 
 function timePassedToString(ms: number) {
   const totalSeconds = Math.floor(ms / 1000);
@@ -100,6 +66,12 @@ function setPresence(load: GatewayPresenceUpdateData) {
     console.log("same presence");
     return;
   }
+  if (process.argv.includes("--dry")) {
+    console.log("set presence to:", load);
+    lastPresence = load;
+    return;
+  }
+
   client.user.setPresence(load).then(() => {
     console.log("set presence to:", load);
     lastPresence = load;
@@ -123,7 +95,7 @@ async function update() {
     if (!client.user) return;
 
     const [discord, lastfmInfo] = await Promise.all([
-      getDiscordPresence().catch(() => null),
+      Promise.resolve(getDiscordPresence()),
       getLastFmNowPlaying().catch(() => null),
     ]);
 
@@ -182,11 +154,15 @@ async function update() {
 
       if (otherOrdered.length > 0 && otherOrdered[0]) {
         const other = otherOrdered[0];
-        const startTime = new Date(other.timestamps.start);
+        const startTime = other.timestamps?.start
+          ? new Date(other.timestamps.start)
+          : null;
         const now = new Date();
-        const timePassed = now.getTime() - startTime.getTime();
+        const timePassed = startTime ? now.getTime() - startTime.getTime() : 0;
         const timePassedStr =
-          env.SHOW_ACTIVITY_TIME && parenthesize(timePassedToString(timePassed));
+          env.SHOW_ACTIVITY_TIME &&
+          startTime &&
+          parenthesize(timePassedToString(timePassed));
 
         const text =
           other.name === "Visual Studio Code"
@@ -194,8 +170,8 @@ async function update() {
             : append(
                 useTemplate(env.PLAYING_TEXT, {
                   name: other.name,
-                  details: other.details,
-                  state: other.state,
+                  details: other.details || "",
+                  state: other.state || "",
                   action: other.typeName,
                 }),
               );
@@ -249,10 +225,8 @@ async function update() {
 
 client.on("ready", async () => {
   console.log("READY");
-  while (true) {
-    await update();
-    await new Promise((res) => setTimeout(res, 30_000));
-  }
+  connectLanyard(env.DISCORD_ID);
+  setOnPresenceUpdate(update);
 });
 
 client.login(env.TOKEN);
