@@ -22,7 +22,7 @@ export const envSchema = {
   CODING_TEXT: z.string().optional().default("Coding!"),
   CODING_EMOJI: z.emoji().optional().default("💻"),
 
-  PLAYING_TEXT: z.string().optional().default("Playing {{name}}"),
+  PLAYING_TEXT: z.string().optional().default("{{action}} {{name}}"),
   PLAYING_EMOJI: z.emoji().optional().default("🎮"),
 
   SHOW_MUSIC_TIME: z.coerce.boolean().optional().default(true),

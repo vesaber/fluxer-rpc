@@ -191,7 +191,14 @@ async function update() {
         const text =
           other.name === "Visual Studio Code"
             ? append(env.CODING_TEXT, timePassedStr)
-            : append(useTemplate(env.PLAYING_TEXT, { name: other.name }));
+            : append(
+                useTemplate(env.PLAYING_TEXT, {
+                  name: other.name,
+                  details: other.details,
+                  state: other.state,
+                  action: other.typeName,
+                }),
+              );
 
         const emoji =
           other.name === "Visual Studio Code" ? env.CODING_EMOJI : env.PLAYING_EMOJI;
