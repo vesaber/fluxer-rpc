@@ -1,7 +1,7 @@
 # discord + last.fm to fluxer RPC
 
-| ![](/assets/music.webp) | ![](/assets/vsc.webp) |
-| ----------------------- | --------------------- |
+| ![](/assets/music.webp) | ![](/assets/vsc.webp) | ![](/assets/game.webp) |
+| ----------------------- | --------------------- | ---------------------- |
 
 ## setup
 
