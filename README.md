@@ -1,8 +1,11 @@
 # discord + last.fm to fluxer RPC
 
+| ![](/assets/music.webp) | ![](/assets/vsc.webp) |
+| ----------------------- | --------------------- |
+
 ## setup
 
-setup environment variables: [read .example.env](./.env.example)
+setup environment variables: read [.env.example](./.env.example)
 
 > [!IMPORTANT]  
 > uses [this public discord presence api](https://discord-presence-api.johnrich.dev/), follow its instructions to use it
