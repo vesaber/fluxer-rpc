@@ -173,8 +173,8 @@ export function getDiscordPresence(): DiscordPresence | null {
   let spotifyInfo = null;
   if (spotify) {
     spotifyInfo = {
-      songName: spotify.details,
-      artistName: spotify.state,
+      songName: spotify.song,
+      artistName: spotify.artist,
       start: spotify.timestamps.start,
       end: spotify.timestamps.end,
     };
