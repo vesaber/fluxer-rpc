@@ -14,6 +14,7 @@ function format(value: unknown) {
 }
 
 for (const [key, value] of Object.entries(schema)) {
+  if (key === "RUN_MODE") continue;
   if (!value) continue;
 
   const parsed = value.safeParse(undefined);

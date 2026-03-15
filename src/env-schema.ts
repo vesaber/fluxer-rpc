@@ -13,6 +13,8 @@ export const envSchema = {
     .string()
     .optional() /* if not provided it just will use spotify/feishin from discord and not lastfm (offline fallback) */,
 
+  RUN_MODE: z.enum(["windows_exe", "docker", "bun"]).optional().default("bun"),
+
   DEFAULT_STATUS_TEXT: z.string().optional().default("hiii"),
   DEFAULT_STATUS_EMOJI: z.emoji().optional().default("🐬"),
 

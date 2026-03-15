@@ -13,6 +13,8 @@ import {
   calculateTimer,
 } from "./utils";
 
+console.log(env.RUN_MODE);
+
 const client = new Client({ intents: 0 });
 let lastTextContent: string | undefined;
 let lastTimerData: number | undefined;
