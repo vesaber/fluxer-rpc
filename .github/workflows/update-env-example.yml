@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - src/env.ts
+      - src/env-schema.ts
       - scripts/generate-default-env.ts
 
 jobs:
