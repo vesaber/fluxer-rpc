@@ -219,6 +219,8 @@ client.on("ready", async () => {
   console.log("READY");
   listenToLanyard(env.DISCORD_ID);
   setOnPresenceUpdate(update);
+
+  setInterval(update, env.TIMER_UPDATE_INTERVAL_SECONDS * 1000);
 });
 
 client.login(env.TOKEN);
