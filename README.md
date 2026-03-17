@@ -1,4 +1,6 @@
-# discord + last.fm to fluxer RPC
+# `(discord + last.fm) -> fluxer` rpc
+
+[![image](https://badges.fluxer.ltrx.lol/badge/1476277757476868234?style=for-the-badge)](https://fluxer.gg/Roi7rTTU)
 
 | ![](/assets/music.webp) | ![](/assets/vsc.webp) | ![](/assets/game.webp) |
 | ----------------------- | --------------------- | ---------------------- |
