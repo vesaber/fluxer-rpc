@@ -23,6 +23,12 @@ export const ENV_VAR_GROUPS: Record<string, string[]> = {
 
   playing: ["PLAYING_TEXT", "PLAYING_EMOJI"],
 
+  "priorities (lower is more important)": [
+    "MUSIC_PRIORITY",
+    "CODING_PRIORITY",
+    "PLAYING_PRIORITY",
+  ],
+
   [`statuses (allowed: ${statusSchema.options.join(", ")})`]: [
     "ONLINE_STATUS",
     "ACTIVITY_STATUS",
@@ -73,6 +79,7 @@ export const envSchema = {
     .default("feishin,meld,metrolist")
     .transform((str) => str.split(",").map((e) => e.trim().toLowerCase()))
     .describe("other apps to count as music status (other than spotify)"),
+  MUSIC_PRIORITY: z.coerce.number().optional().default(0),
 
   CODING_TEXT: z.string().optional().default("Coding!"),
   CODING_EMOJI: z.emoji().optional().default("💻"),
@@ -82,9 +89,11 @@ export const envSchema = {
     .default("visual studio code,intellij idea,intellij idea community")
     .transform((str) => str.split(",").map((e) => e.trim().toLowerCase()))
     .describe("apps to count as coding status"),
+  CODING_PRIORITY: z.coerce.number().optional().default(2),
 
   PLAYING_TEXT: z.string().optional().default("{{action}} {{name}}"),
   PLAYING_EMOJI: z.emoji().optional().default("🎮"),
+  PLAYING_PRIORITY: z.coerce.number().optional().default(1),
 
   SHOW_MUSIC_TIME: z.stringbool().optional().default(false),
   SHOW_ACTIVITY_TIME: z

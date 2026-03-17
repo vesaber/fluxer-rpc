@@ -80,6 +80,11 @@ function setPresence(load: GatewayPresenceUpdateData) {
   });
 }
 
+type PossibleStatus = {
+  priority: number;
+  presence: GatewayPresenceUpdateData;
+};
+
 async function update() {
   try {
     if (!client.user) return;
@@ -89,8 +94,9 @@ async function update() {
       getLastFmNowPlaying().catch(() => null),
     ]);
 
+    const statuses: PossibleStatus[] = [];
+
     if (discord && discord.isOnline) {
-      /* discord music */
       const musicInfo = discord.spotifyInfo
         ? {
             song: discord.spotifyInfo.songName,
@@ -108,7 +114,6 @@ async function update() {
       if (musicInfo) {
         const timeString = (() => {
           if (!musicInfo.start || !musicInfo.end) return null;
-          /* this sucks :p */
           const start = new Date(musicInfo.start);
           const end = new Date(musicInfo.end);
           const currentTimePassed = end.getTime() - start.getTime();
@@ -120,30 +125,25 @@ async function update() {
           return env.SHOW_MUSIC_TIME && `(${stimePassedStr}/${timePassedStr})`;
         })();
 
-        setPresence({
-          status: env.MUSIC_STATUS,
-          custom_status: {
-            text: append(
-              useTemplate(env.MUSIC_TEXT, {
-                artist: musicInfo.artist,
-                song: musicInfo.song,
-              }),
-              timeString,
-            ),
-            emoji_name: env.MUSIC_EMOJI,
+        statuses.push({
+          priority: env.MUSIC_PRIORITY,
+          presence: {
+            status: env.MUSIC_STATUS,
+            custom_status: {
+              text: append(
+                useTemplate(env.MUSIC_TEXT, {
+                  artist: musicInfo.artist,
+                  song: musicInfo.song,
+                }),
+                timeString,
+              ),
+              emoji_name: env.MUSIC_EMOJI,
+            },
           },
         });
-        return;
       }
 
-      /* discord game */
-      const otherOrdered = discord.other.sort((a, b) => {
-        if (a.name === "Visual Studio Code") return -1;
-        return 1;
-      });
-
-      if (otherOrdered.length > 0 && otherOrdered[0]) {
-        const other = otherOrdered[0];
+      for (const other of discord.other) {
         const isCoding = env.CODING_APPS.includes(other.name.toLowerCase());
         const startTime = other.timestamps?.start
           ? new Date(other.timestamps.start)
@@ -168,48 +168,67 @@ async function update() {
             );
 
         const emoji = isCoding ? env.CODING_EMOJI : env.PLAYING_EMOJI;
+        const priority = isCoding ? env.CODING_PRIORITY : env.PLAYING_PRIORITY;
 
-        setPresence({
-          status: env.ACTIVITY_STATUS,
-          custom_status: {
-            text,
-            emoji_name: emoji,
+        statuses.push({
+          priority,
+          presence: {
+            status: env.ACTIVITY_STATUS,
+            custom_status: {
+              text,
+              emoji_name: emoji,
+            },
           },
         });
-        return;
       }
 
-      /* default */
-      setPresence({
-        status: env.ONLINE_STATUS,
-        custom_status: env.ENABLE_DEFAULT_STATUS
-          ? {
-              text: env.DEFAULT_STATUS_TEXT,
-              emoji_name: env.DEFAULT_STATUS_EMOJI,
-            }
-          : null,
-      });
-      return;
-    }
-
-    /* offline... lets test lastfm */
-    if (lastfmInfo) {
-      setPresence({
-        status: env.OFFLINE_MUSIC_STATUS,
-        custom_status: {
-          text: useTemplate(env.MUSIC_TEXT, {
-            artist: lastfmInfo.artistName,
-            song: lastfmInfo.songName,
-          }),
-          emoji_name: env.MUSIC_EMOJI,
+      statuses.push({
+        priority: Infinity,
+        presence: {
+          status: env.ONLINE_STATUS,
+          custom_status: env.ENABLE_DEFAULT_STATUS
+            ? {
+                text: env.DEFAULT_STATUS_TEXT,
+                emoji_name: env.DEFAULT_STATUS_EMOJI,
+              }
+            : null,
         },
       });
+    } else {
+      if (lastfmInfo) {
+        statuses.push({
+          priority: env.MUSIC_PRIORITY,
+          presence: {
+            status: env.OFFLINE_MUSIC_STATUS,
+            custom_status: {
+              text: useTemplate(env.MUSIC_TEXT, {
+                artist: lastfmInfo.artistName,
+                song: lastfmInfo.songName,
+              }),
+              emoji_name: env.MUSIC_EMOJI,
+            },
+          },
+        });
+      }
+
+      statuses.push({
+        priority: Infinity,
+        presence: { status: env.OFFLINE_ACTIVITY_STATUS, custom_status: null },
+      });
+    }
+
+    statuses.sort((a, b) => a.priority - b.priority);
+    const chosenOne = statuses[0];
+
+    if (!chosenOne) {
+      console.log("no status");
       return;
     }
 
-    /* okaty bye */
-    setPresence({ status: env.OFFLINE_ACTIVITY_STATUS, custom_status: null });
-    console.log("OFFLINE");
+    setPresence(chosenOne.presence);
+    if (!discord?.isOnline && !lastfmInfo) {
+      console.log("OFFLINE");
+    }
   } catch (e) {
     console.error("update error:", e);
   }
