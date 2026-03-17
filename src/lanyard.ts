@@ -1,3 +1,5 @@
+import { env } from "./env";
+
 export interface LanyardSpotify {
   track_id: string;
   timestamps: {
@@ -168,7 +170,9 @@ export function getDiscordPresence(): DiscordPresence | null {
   const activities = currentPresence.activities || [];
   const spotify = currentPresence.spotify;
 
-  const miscOther = activities.filter((e) => !["Spotify", "Feishin"].includes(e.name));
+  const miscOther = activities.filter(
+    (e) => !["spotify", ...env.MUSIC_APPS].includes(e.name.toLowerCase()),
+  );
 
   let spotifyInfo = null;
   if (spotify) {
@@ -180,13 +184,16 @@ export function getDiscordPresence(): DiscordPresence | null {
     };
   }
 
-  const feishinActivity = activities.find((e) => e.name === "Feishin");
-  if (feishinActivity) {
+  const customMusicActivity = activities.find((e) =>
+    env.MUSIC_APPS.includes(e.name.toLowerCase()),
+  );
+
+  if (customMusicActivity) {
     spotifyInfo = {
-      songName: feishinActivity.details,
-      artistName: feishinActivity.state,
-      start: feishinActivity.timestamps?.start,
-      end: feishinActivity.timestamps?.end,
+      songName: customMusicActivity.details,
+      artistName: customMusicActivity.state,
+      start: customMusicActivity.timestamps?.start,
+      end: customMusicActivity.timestamps?.end,
     };
   }
 

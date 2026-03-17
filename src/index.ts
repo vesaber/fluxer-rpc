@@ -144,6 +144,7 @@ async function update() {
 
       if (otherOrdered.length > 0 && otherOrdered[0]) {
         const other = otherOrdered[0];
+        const isCoding = env.CODING_APPS.includes(other.name.toLowerCase());
         const startTime = other.timestamps?.start
           ? new Date(other.timestamps.start)
           : null;
@@ -154,21 +155,19 @@ async function update() {
           startTime &&
           parenthesize(timePassedToString(timePassed));
 
-        const text =
-          other.name === "Visual Studio Code"
-            ? append(env.CODING_TEXT, timePassedStr)
-            : append(
-                useTemplate(env.PLAYING_TEXT, {
-                  name: other.name,
-                  details: other.details || "",
-                  state: other.state || "",
-                  action: other.typeName,
-                }),
-                timePassedStr,
-              );
+        const text = isCoding
+          ? append(env.CODING_TEXT, timePassedStr)
+          : append(
+              useTemplate(env.PLAYING_TEXT, {
+                name: other.name,
+                details: other.details || "",
+                state: other.state || "",
+                action: other.typeName,
+              }),
+              timePassedStr,
+            );
 
-        const emoji =
-          other.name === "Visual Studio Code" ? env.CODING_EMOJI : env.PLAYING_EMOJI;
+        const emoji = isCoding ? env.CODING_EMOJI : env.PLAYING_EMOJI;
 
         setPresence({
           status: env.ACTIVITY_STATUS,
@@ -183,10 +182,12 @@ async function update() {
       /* default */
       setPresence({
         status: env.ONLINE_STATUS,
-        custom_status: {
-          text: env.DEFAULT_STATUS_TEXT,
-          emoji_name: env.DEFAULT_STATUS_EMOJI,
-        },
+        custom_status: env.ENABLE_DEFAULT_STATUS
+          ? {
+              text: env.DEFAULT_STATUS_TEXT,
+              emoji_name: env.DEFAULT_STATUS_EMOJI,
+            }
+          : null,
       });
       return;
     }
