@@ -32,7 +32,11 @@ export async function updateLastFmNowPlaying() {
       .json<any>();
 
     const track = data.recenttracks?.track?.[0];
-    if (!track || !track["@attr"]?.nowplaying) return null;
+    if (!track || !track["@attr"]?.nowplaying) {
+      lastFmNowPlaying = null;
+      listeners.forEach((e) => e());
+      return null; 
+    }
 
     const result: typeof lastFmNowPlaying = {
       songName: track.name,
