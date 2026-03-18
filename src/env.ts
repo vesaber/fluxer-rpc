@@ -33,3 +33,7 @@ export const env = createEnv({
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
+
+export function isLastFmEnabled() {
+  return env.LASTFM_USER && env.LASTFM_KEY;
+}

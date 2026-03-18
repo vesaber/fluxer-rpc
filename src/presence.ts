@@ -1,3 +1,4 @@
+import { env } from "./env";
 import { sendPresenceUpdate, type GatewayPresenceUpdateData } from "./fluxer";
 import { hexToTerminal, Logger } from "./logger";
 import { calculateTimer } from "./utils";
@@ -42,6 +43,14 @@ export async function setPresence(load: GatewayPresenceUpdateData) {
 
   if (!contentChanged && !timerChanged) {
     return;
+  }
+
+  if (timerChanged && !contentChanged && lastTimerData) {
+    const timeDiffSecs = Math.floor((timer - lastTimerData) / 1000);
+    if (timeDiffSecs < env.TIMER_UPDATE_INTERVAL_SECONDS) {
+      logger.dim(`too early to update timer (only ${timeDiffSecs}s)`);
+      return;
+    }
   }
 
   if (process.argv.includes("--dry")) {

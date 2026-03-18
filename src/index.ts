@@ -1,5 +1,5 @@
 import { listenToLanyard, getDiscordPresence, onLanyardUpdate } from "./lanyard";
-import { env } from "./env";
+import { env, isLastFmEnabled } from "./env";
 import { append, useTemplate, parenthesize, timePassedToString } from "./utils";
 import "./tray";
 import { checkToken, type GatewayPresenceUpdateData } from "./fluxer";
@@ -157,10 +157,13 @@ async function update() {
 
 function ready() {
   listenToLanyard(env.DISCORD_ID);
-  onLanyardUpdate(update);
-  onLastFmUpdate(update);
 
-  setInterval(updateLastFmNowPlaying, env.LASTFM_UPDATE_INTERVAL_SECONDS * 1000);
+  if (isLastFmEnabled()) {
+    setInterval(updateLastFmNowPlaying, env.LASTFM_UPDATE_INTERVAL_SECONDS * 1000);
+    onLastFmUpdate(update);
+  }
+
+  onLanyardUpdate(update);
   setInterval(update, env.TIMER_UPDATE_INTERVAL_SECONDS * 1000);
 }
 

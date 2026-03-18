@@ -1,5 +1,5 @@
 import ky from "ky";
-import { env } from "./env";
+import { env, isLastFmEnabled } from "./env";
 import { Logger, hexToTerminal } from "./logger";
 
 const logger = new Logger(`${hexToTerminal("#d51007")}[last.fm]${Logger.resetColor}`);
@@ -17,7 +17,7 @@ export function getLastFmNowPlaying() {
 const listeners: (() => void)[] = [];
 
 export async function updateLastFmNowPlaying() {
-  if (!env.LASTFM_USER || !env.LASTFM_KEY) return null;
+  if (!isLastFmEnabled()) return null;
   try {
     const data = await ky
       .get("https://ws.audioscrobbler.com/2.0/", {
