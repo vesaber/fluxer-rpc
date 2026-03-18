@@ -49,7 +49,7 @@ async function update() {
         statuses.push({
           priority: env.MUSIC_PRIORITY,
           presence: {
-            status: env.MUSIC_STATUS,
+            status: env.MIRROR_STATUS_FROM_DISCORD ? discord.status : env.MUSIC_STATUS,
             custom_status: {
               text: append(
                 useTemplate(env.MUSIC_TEXT, {
@@ -94,7 +94,7 @@ async function update() {
         statuses.push({
           priority,
           presence: {
-            status: env.ACTIVITY_STATUS,
+            status: env.MIRROR_STATUS_FROM_DISCORD ? discord.status : env.ACTIVITY_STATUS,
             custom_status: {
               text,
               emoji_name: emoji,
@@ -106,7 +106,7 @@ async function update() {
       statuses.push({
         priority: Infinity,
         presence: {
-          status: env.ONLINE_STATUS,
+          status: env.MIRROR_STATUS_FROM_DISCORD ? discord.status : env.ONLINE_STATUS,
           custom_status: env.ENABLE_DEFAULT_STATUS
             ? {
                 text: env.DEFAULT_STATUS_TEXT,

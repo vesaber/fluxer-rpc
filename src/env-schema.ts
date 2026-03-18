@@ -31,6 +31,7 @@ export const ENV_VAR_GROUPS: Record<string, string[]> = {
   ],
 
   [`statuses (allowed: ${statusSchema.options.join(", ")})`]: [
+    "MIRROR_STATUS_FROM_DISCORD",
     "ONLINE_STATUS",
     "ACTIVITY_STATUS",
     "MUSIC_STATUS",
@@ -127,6 +128,14 @@ export const envSchema = {
     .optional()
     .default("invisible")
     .describe("shown when offline and not listening to last.fm"),
+
+  MIRROR_STATUS_FROM_DISCORD: z
+    .stringbool()
+    .optional()
+    .default(false)
+    .describe(
+      "if enabled, mirrors discord status (online, offline, idle, dnd) except for when offline listening from last.fm. the following settings will be ignored if this is enabled!",
+    ),
 
   TIMER_UPDATE_INTERVAL_SECONDS: z.coerce
     .number()

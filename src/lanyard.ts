@@ -61,6 +61,7 @@ export interface DiscordPresence {
     start: number | undefined;
     end: number | undefined;
   } | null;
+  status: "online" | "idle" | "dnd" | "invisible";
 }
 
 enum LanyardOpcode {
@@ -201,6 +202,7 @@ export function getDiscordPresence(): DiscordPresence | null {
   }
 
   return {
+    status: discordStatus as DiscordPresence["status"],
     isOnline: discordStatus !== "offline",
     other: miscOther.map(normalizeActivity),
     spotifyInfo,
