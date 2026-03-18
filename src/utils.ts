@@ -17,7 +17,9 @@ function positiveOrZero(num: number) {
 }
 
 export function timePassedToString(ms: number) {
-  const totalSeconds = Math.floor(ms / 1000);
+  let totalSeconds = Math.floor(ms / 1000);
+
+  if (env.ROUND_TO_5_SECONDS) totalSeconds = Math.floor(totalSeconds / 5) * 5;
 
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor(totalSeconds / 60) % 60;
@@ -31,7 +33,9 @@ export function timePassedToString(ms: number) {
       .padStart(2, "0")}`;
   }
 
-  return `${positiveOrZero(minutes)}:${positiveOrZero(seconds).toString().padStart(2, "0")}`;
+  return `${positiveOrZero(minutes)}:${positiveOrZero(seconds)
+    .toString()
+    .padStart(2, "0")}`;
 }
 
 export function calculateTimer(str: string) {

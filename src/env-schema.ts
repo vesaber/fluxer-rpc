@@ -38,7 +38,7 @@ export const ENV_VAR_GROUPS: Record<string, string[]> = {
     "OFFLINE_ACTIVITY_STATUS",
   ],
 
-  settings: ["SHOW_ACTIVITY_TIME", "TIMER_UPDATE_INTERVAL_SECONDS"],
+  settings: ["SHOW_ACTIVITY_TIME", "TIMER_UPDATE_INTERVAL_SECONDS", "ROUND_TO_5_SECONDS"],
 };
 
 export const envSchema = {
@@ -140,4 +140,10 @@ export const envSchema = {
     .optional()
     .default(30)
     .describe("how often last.fm updates"),
+
+  ROUND_TO_5_SECONDS: z
+    .boolean()
+    .optional()
+    .default(true)
+    .describe("rounds timers to fancy multiple of 5 numbers"),
 };
