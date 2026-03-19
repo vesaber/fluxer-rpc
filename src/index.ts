@@ -147,9 +147,6 @@ async function update() {
     }
 
     setPresence(chosenOne.presence);
-    if (!discord?.isOnline && !lastfmInfo) {
-      logger.dim("offline!");
-    }
   } catch (e) {
     logger.error("update error:", e);
   }
