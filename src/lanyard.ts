@@ -96,7 +96,7 @@ function getActivityTypeName(type: number): string {
     case 1:
       return "Streaming";
     case 2:
-      return "Listening";
+      return "Listening to";
     case 3:
       return "Watching";
     case 4:
