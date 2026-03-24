@@ -1,6 +1,7 @@
 # Fluxer RPC
 
-[![image](https://badges.fluxer.ltrx.lol/badge/1476277757476868234?style=for-the-badge)](https://fluxer.gg/Roi7rTTU)
+[![support](https://badges.fluxer.ltrx.lol/badge/1476277757476868234?style=for-the-badge)](https://fluxer.gg/Roi7rTTU)
+![docker pulls](https://ghcr-badge.elias.eu.org/shield/letruxux/fluxer-rpc?style=for-the-badge)
 
 | ![](/assets/music.webp) | ![](/assets/vsc.webp) | ![](/assets/game.webp) |
 | ----------------------- | --------------------- | ---------------------- |
