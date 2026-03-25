@@ -104,6 +104,20 @@ async function update() {
           },
         });
       }
+
+      statuses.push({
+        priority: Infinity,
+        ignoreWhenCounting: true,
+        presence: {
+          status: env.MIRROR_STATUS_FROM_DISCORD ? discord.status : env.ONLINE_STATUS,
+          custom_status: env.ENABLE_DEFAULT_STATUS
+            ? {
+                text: env.DEFAULT_STATUS_TEXT,
+                emoji_name: env.DEFAULT_STATUS_EMOJI,
+              }
+            : null,
+        },
+      });
     } else {
       if (lastfmInfo) {
         statuses.push({
@@ -124,24 +138,18 @@ async function update() {
       statuses.push({
         ignoreWhenCounting: true,
         priority: Infinity,
-        presence: { status: env.OFFLINE_ACTIVITY_STATUS, custom_status: null },
+        presence: {
+          status:
+            env.MIRROR_STATUS_FROM_DISCORD && discord ? discord.status : "invisible",
+          custom_status: env.ENABLE_DEFAULT_STATUS
+            ? {
+                text: env.DEFAULT_STATUS_TEXT,
+                emoji_name: env.DEFAULT_STATUS_EMOJI,
+              }
+            : null,
+        },
       });
     }
-
-    statuses.push({
-      priority: Infinity,
-      ignoreWhenCounting: true,
-      presence: {
-        status:
-          env.MIRROR_STATUS_FROM_DISCORD && discord ? discord.status : env.ONLINE_STATUS,
-        custom_status: env.ENABLE_DEFAULT_STATUS
-          ? {
-              text: env.DEFAULT_STATUS_TEXT,
-              emoji_name: env.DEFAULT_STATUS_EMOJI,
-            }
-          : null,
-      },
-    });
 
     statuses.sort((a, b) => a.priority - b.priority);
     const chosenOne = statuses[0];
