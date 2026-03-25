@@ -2,6 +2,24 @@ import z from "zod";
 
 export const statusSchema = z.enum(["online", "idle", "dnd", "invisible"]);
 
+export const multipleActivityStyles = z.object({
+  plusCount: z.string().describe("(+1)"),
+  plusEmoji: z.string().describe("(+🎧)"),
+  emoji: z.string().describe("(🎧)"),
+  none: z.string().describe(""),
+});
+
+const multipleActivityHelpString = `allowed: ${Object.keys(multipleActivityStyles.shape)
+  .map((e) => `"${e}"`)
+  .join(", ")}
+#  plusEmoji - 🎮 Playing GAME (15:00) (+🎧)
+#  emoji - 🎮 Playing GAME (15:00) (🎧)
+#  plusCount - 🎮 Playing GAME (15:00) (+1)
+`;
+
+type MultipleActivityStyles = z.infer<typeof multipleActivityStyles>;
+export type MultipleActivityType = keyof MultipleActivityStyles;
+
 export const ENV_VAR_GROUPS: Record<string, string[]> = {
   required: ["TOKEN", "DISCORD_ID"],
 
@@ -29,6 +47,8 @@ export const ENV_VAR_GROUPS: Record<string, string[]> = {
     "CODING_PRIORITY",
     "PLAYING_PRIORITY",
   ],
+
+  "multiple activities": ["SHOW_MULTIPLE_ACTIVITIES", "MULTIPLE_ACTIVITIES_STYLE"],
 
   [`statuses (allowed: ${statusSchema.options.join(", ")})`]: [
     "MIRROR_STATUS_FROM_DISCORD",
@@ -162,4 +182,18 @@ export const envSchema = {
     .optional()
     .default(5)
     .describe("rounds timers to multiple of ... - set to 0 to disable"),
+
+  SHOW_MULTIPLE_ACTIVITIES: z
+    .stringbool()
+    .optional()
+    .default(false)
+    .describe(
+      "if enabled, shows multiple activities in the status (and follows MULTIPLE_ACTIVITIES_STYLE)",
+    ),
+
+  MULTIPLE_ACTIVITIES_STYLE: z
+    .enum(["plusCount", "plusEmoji", "emoji", "none"])
+    .optional()
+    .default("emoji")
+    .describe(multipleActivityHelpString),
 };

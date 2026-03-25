@@ -38,6 +38,14 @@ services:
       - CODING_PRIORITY=2
       - PLAYING_PRIORITY=1
 
+      # multiple activities
+      - SHOW_MULTIPLE_ACTIVITIES=false # if enabled, shows multiple activities in the status (and follows MULTIPLE_ACTIVITIES_STYLE)
+      - MULTIPLE_ACTIVITIES_STYLE="emoji" # allowed: "plusCount", "plusEmoji", "emoji", "none"
+      #  plusEmoji - 🎮 Playing GAME (15:00) (+🎧)
+      #  emoji - 🎮 Playing GAME (15:00) (🎧)
+      #  plusCount - 🎮 Playing GAME (15:00) (+1)
+
+
       # statuses (allowed: online, idle, dnd, invisible)
       - MIRROR_STATUS_FROM_DISCORD=false # if enabled, mirrors discord status (online, offline, idle, dnd) except for when offline listening from last.fm. the following settings will be ignored if this is enabled!
       - ONLINE_STATUS="online" # shown when online and idle

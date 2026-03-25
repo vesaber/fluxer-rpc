@@ -5,6 +5,7 @@ import "./tray";
 import { checkToken, type GatewayPresenceUpdateData } from "./fluxer";
 import { getLastFmNowPlaying, onLastFmUpdate, updateLastFmNowPlaying } from "./lastfm";
 import { logger, setPresence } from "./presence";
+import type { MultipleActivityType } from "./env-schema";
 
 type PossibleStatus = {
   priority: number;
@@ -165,13 +166,15 @@ async function update() {
         ),
       ).filter((e) => e !== undefined && e !== null);
 
-      const allStylesOfMoreActivityThing = {
+      const allStylesOfMoreActivityThing: Record<MultipleActivityType, string> = {
         plusCount: `(+${activityCount - 1})`,
         plusEmoji: `(+${uniqueEmojis.join("")})`,
+        emoji: `(${uniqueEmojis.join("")})`,
+        none: "",
       };
 
       const text =
-        `${chosenOne.presence.custom_status.text} ${activityCount > 1 ? allStylesOfMoreActivityThing.plusEmoji : ""}`.trim();
+        `${chosenOne.presence.custom_status.text} ${activityCount > 1 ? allStylesOfMoreActivityThing[env.SHOW_MULTIPLE_ACTIVITIES ? env.MULTIPLE_ACTIVITIES_STYLE : "none"] : ""}`.trim();
 
       chosenOne.presence.custom_status.text = text;
     }
