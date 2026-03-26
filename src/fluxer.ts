@@ -37,10 +37,11 @@ const rest = ky.create({
 const logger = new Logger(`${hexToTerminal("#413cdd")}[fluxer api]${Logger.resetColor}`);
 
 export async function sendPresenceUpdate(load: GatewayPresenceUpdateData) {
-  const res = await rest.patch(SETTINGS_ENDPOINT, { json: load });
+  const res = await rest.patch(SETTINGS_ENDPOINT, { json: load, throwHttpErrors: false });
 
   if (!res.ok) {
-    logger.error("error sending presence update:", res.statusText);
+    const text = await res.text();
+    logger.error("error sending presence update:", text);
   }
 
   logger.info("updated presence to", presencePayloadToString(load));
