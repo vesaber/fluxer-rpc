@@ -13,6 +13,26 @@ type PossibleStatus = {
   ignoreWhenCounting?: boolean;
 };
 
+enum ActivityType {
+  Playing = 0,
+  Streaming = 1,
+  ListeningTo = 2,
+  Watching = 3,
+  Custom = 4,
+  Competing = 5,
+  HangStatus = 6 /* zero idea what this is, its listed here https://discord.com/developers/docs/social-sdk/namespacediscordpp.html#a6c76a8cbbc9270f025fd6854d5558660 */,
+}
+
+const ACTIVITY_EMOJIS: Record<ActivityType, string> = {
+  [ActivityType.Playing]: env.PLAYING_EMOJI,
+  [ActivityType.Streaming]: env.PLAYING_EMOJI,
+  [ActivityType.ListeningTo]: env.MUSIC_EMOJI,
+  [ActivityType.Watching]: env.WATCHING_EMOJI,
+  [ActivityType.Custom]: env.PLAYING_EMOJI,
+  [ActivityType.Competing]: env.PLAYING_EMOJI,
+  [ActivityType.HangStatus]: env.PLAYING_EMOJI,
+};
+
 async function update() {
   try {
     const [discord, lastfmInfo] = [getDiscordPresence(), getLastFmNowPlaying()];
@@ -90,7 +110,9 @@ async function update() {
               timePassedStr,
             );
 
-        const emoji = isCoding ? env.CODING_EMOJI : env.PLAYING_EMOJI;
+        const emoji = isCoding
+          ? env.CODING_EMOJI
+          : (ACTIVITY_EMOJIS[other.type as ActivityType] ?? env.PLAYING_EMOJI);
         const priority = isCoding ? env.CODING_PRIORITY : env.PLAYING_PRIORITY;
 
         statuses.push({

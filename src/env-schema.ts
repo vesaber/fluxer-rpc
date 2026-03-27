@@ -196,4 +196,6 @@ export const envSchema = {
     .optional()
     .default("emoji")
     .describe(multipleActivityHelpString),
+
+  WATCHING_EMOJI: z.emoji().optional().default("📺"),
 } as const;
