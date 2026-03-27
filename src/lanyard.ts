@@ -173,32 +173,18 @@ export function getDiscordPresence(): DiscordPresence | null {
 
   const discordStatus = currentPresence.discord_status;
   const activities = currentPresence.activities || [];
-  const spotify = currentPresence.spotify;
 
-  const miscOther = activities.filter(
-    (e) => !["spotify", ...env.MUSIC_APPS].includes(e.name.toLowerCase()),
-  );
+  const miscOther = activities.filter((e) => e.type !== 2);
+  const musicActivity = activities.find((e) => e.type === 2);
 
-  let spotifyInfo = null;
-  if (spotify) {
+  let spotifyInfo: DiscordPresence["spotifyInfo"] | null = null;
+
+  if (musicActivity) {
     spotifyInfo = {
-      songName: spotify.song,
-      artistName: spotify.artist,
-      start: spotify.timestamps.start,
-      end: spotify.timestamps.end,
-    };
-  }
-
-  const customMusicActivity = activities.find((e) =>
-    env.MUSIC_APPS.includes(e.name.toLowerCase()),
-  );
-
-  if (customMusicActivity) {
-    spotifyInfo = {
-      songName: customMusicActivity.details ?? "?",
-      artistName: customMusicActivity.state ?? "?",
-      start: customMusicActivity.timestamps?.start,
-      end: customMusicActivity.timestamps?.end,
+      songName: musicActivity.details ?? "?",
+      artistName: musicActivity.state ?? "?",
+      start: musicActivity.timestamps?.start,
+      end: musicActivity.timestamps?.end,
     };
   }
 

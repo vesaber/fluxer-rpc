@@ -39,7 +39,7 @@ export class Logger {
 
   info(...message: any[]): void {
     console.log(
-      `${this.prefix} INF${this.baseColor ?? ""}${this.baseBgColor ?? ""}`,
+      `${this.prefix} INF${this.baseColor ?? Logger.resetColor}${this.baseBgColor ?? Logger.resetColor}`,
       ...message,
       Logger.resetColor,
     );
@@ -47,7 +47,15 @@ export class Logger {
 
   error(...message: any[]): void {
     console.error(
-      `${this.prefix} ERR${this.baseColor ?? ""}${this.baseBgColor ?? ""}`,
+      `${this.prefix} \x1b[31mERR\x1b[0m${this.baseColor ?? Logger.resetColor}${this.baseBgColor ?? Logger.resetColor}`,
+      ...message,
+      Logger.resetColor,
+    );
+  }
+
+  warn(...message: any[]): void {
+    console.warn(
+      `${this.prefix} \x1b[33m!!!\x1b[0m${this.baseColor ?? Logger.resetColor}${this.baseBgColor ?? Logger.resetColor}`,
       ...message,
       Logger.resetColor,
     );
@@ -55,7 +63,7 @@ export class Logger {
 
   dim(...message: any[]): void {
     console.log(
-      `${this.prefix} ${this.dimColor}DIM${this.baseBgColor ?? ""}`,
+      `${this.prefix} ${this.dimColor}DIM${this.baseBgColor ?? Logger.resetColor}`,
       ...message,
       Logger.resetColor,
     );

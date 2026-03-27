@@ -36,7 +36,7 @@ export const ENV_VAR_GROUPS: Record<string, string[]> = {
     "DEFAULT_STATUS_EMOJI",
   ],
 
-  music: ["MUSIC_TEXT", "MUSIC_EMOJI", "MUSIC_APPS", "SHOW_MUSIC_TIME"],
+  music: ["MUSIC_TEXT", "MUSIC_EMOJI", "SHOW_MUSIC_TIME"],
 
   coding: ["CODING_TEXT", "CODING_EMOJI", "CODING_APPS"],
 
@@ -98,9 +98,9 @@ export const envSchema = {
   MUSIC_APPS: z
     .string()
     .optional()
-    .default("feishin,meld,metrolist")
-    .transform((str) => str.split(",").map((e) => e.trim().toLowerCase()))
-    .describe("other apps to count as music status (other than spotify)"),
+    .describe(
+      "other apps to count as music status (other than spotify) - UNUSED - DEPRECATED",
+    ),
   MUSIC_PRIORITY: z.coerce.number().optional().default(0),
 
   CODING_TEXT: z.string().optional().default("Coding!"),
@@ -196,4 +196,4 @@ export const envSchema = {
     .optional()
     .default("emoji")
     .describe(multipleActivityHelpString),
-};
+} as const;

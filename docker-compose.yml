@@ -21,7 +21,6 @@ services:
       # music
       - MUSIC_TEXT="{{artist}} - {{song}}"
       - MUSIC_EMOJI="🎧"
-      - MUSIC_APPS="feishin, meld, metrolist" # other apps to count as music status (other than spotify)
       - SHOW_MUSIC_TIME=false
 
       # coding

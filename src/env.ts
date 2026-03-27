@@ -1,10 +1,13 @@
 import { createEnv } from "@t3-oss/env-core";
 import { envSchema } from "./env-schema";
 import { join } from "node:path";
-import { config, parse } from "dotenv";
+import { config } from "dotenv";
 import { genExampleEnv } from "../scripts/generate-default-env";
 import open from "open";
 import { existsSync } from "node:fs";
+import { hexToTerminal, Logger } from "./logger";
+
+export const logger = new Logger(`${hexToTerminal("#ff0")}[env]${Logger.resetColor}`);
 
 declare const IS_WINDOWS: true | undefined;
 if (typeof IS_WINDOWS !== "undefined")
@@ -28,6 +31,20 @@ if (process.env.RUN_MODE === "windows_exe") {
   }
 }
 
+function checkDeprecatedVars() {
+  if (env.MUSIC_APPS !== undefined) {
+    logger.warn(
+      "MUSIC_APPS is deprecated, it now automatically detects all music apps. It has no effect and should be removed.",
+    );
+  }
+
+  if (env.ROUND_TO_5_SECONDS !== undefined) {
+    logger.warn(
+      "ROUND_TO_5_SECONDS is deprecated. It still works, but ROUND_TO_SECONDS should be used instead to avoid changes in future updates.",
+    );
+  }
+}
+
 const runtimeEnv = Object.fromEntries(
   Object.entries(process.env).map(([k, v]) => [
     k,
@@ -44,3 +61,5 @@ export const env = createEnv({
 export function isLastFmEnabled() {
   return env.LASTFM_USER && env.LASTFM_KEY;
 }
+
+checkDeprecatedVars();
