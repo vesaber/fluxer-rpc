@@ -1,26 +1,33 @@
-# wow windows support!
+# EXPERIMENTAL! Windows support
 
-## build exe
+> [!WARNING]
+> Windows is UNTESTED! Only tested at time of implementation, so it might not work in later updates.
 
-must have [bun](https://bun.sh) installed
+## Get the exe
+
+### From releases
+
+I often also upload the `.exe`s on the [releases page](https://github.com/letruxux/fluxer-rpc/releases)
+
+### Build it yourself
+
+Must have [bun](https://bun.sh) installed
 
 ```sh
 bun i
 bun exe
-# fluxer-rpc.exe, move it to shell:startup
 ```
 
-## config
+## Run at startup
 
-config path:
+Windows allows you to run any file at startup by adding it to `shell:startup`, so just move `fluxer-rpc.exe` there.
+
+## Edit config
+
+The config is at (use `Win+R` and paste to open the folder):
 
 ```sh
 %LOCALAPPDATA%/fluxer-rpc/.env
 ```
 
-change variables there, then the exe will run in the tray (no icon yet)
-
-## notes
-
-- offline obviously won't work since this only runs if your pc is on
-- not making this easier to run since i don't think its that used anyway
+Change variables there, then the exe will run in the tray (no icon yet, it's transparent but i'm sure you can find it!!!)
