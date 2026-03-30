@@ -186,7 +186,7 @@ export const envSchema = {
   SHOW_MULTIPLE_ACTIVITIES: z
     .stringbool()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
       "if enabled, shows multiple activities in the status (and follows MULTIPLE_ACTIVITIES_STYLE)",
     ),
