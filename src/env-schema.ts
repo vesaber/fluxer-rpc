@@ -194,7 +194,7 @@ export const envSchema = {
   MULTIPLE_ACTIVITIES_STYLE: z
     .enum(["plusCount", "plusEmoji", "emoji", "none"])
     .optional()
-    .default("emoji")
+    .default("plusCount")
     .describe(multipleActivityHelpString),
 
   WATCHING_EMOJI: z.emoji().optional().default("📺"),
