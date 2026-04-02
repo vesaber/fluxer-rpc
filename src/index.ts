@@ -33,6 +33,43 @@ const ACTIVITY_EMOJIS: Record<ActivityType, string> = {
   [ActivityType.HangStatus]: env.PLAYING_EMOJI,
 };
 
+const MAX_LENGTH = 128;
+
+function trimTo(str: string, len: number) {
+  return str.length > len ? str.slice(0, len - 3) + "..." : str;
+}
+
+function calculateMultipleActivityPart(statuses: PossibleStatus[]) {
+  const allActivities = statuses.filter((e) => !e.ignoreWhenCounting);
+  let activityCount = allActivities.length;
+
+  const allActivitiesExceptTheOneChosen = statuses
+    .slice(1)
+    .filter((e) => !e.ignoreWhenCounting);
+
+  const uniqueEmojis = Array.from(
+    new Set(
+      allActivitiesExceptTheOneChosen.map((e) => e.presence.custom_status?.emoji_name),
+    ),
+  ).filter((e) => e !== undefined && e !== null);
+
+  const allStylesOfMoreActivityThing: Record<MultipleActivityType, string> = {
+    plusCount: `(+${activityCount - 1})`,
+    plusEmoji: `(+${uniqueEmojis.join("")})`,
+    emoji: `(${uniqueEmojis.join("")})`,
+    none: "",
+  };
+
+  const multipleActivityPart =
+    activityCount > 1
+      ? allStylesOfMoreActivityThing[
+          env.SHOW_MULTIPLE_ACTIVITIES ? env.MULTIPLE_ACTIVITIES_STYLE : "none"
+        ]
+      : "";
+
+  return multipleActivityPart;
+}
+
 async function update() {
   try {
     const [discord, lastfmInfo] = [getDiscordPresence(), getLastFmNowPlaying()];
@@ -181,31 +218,14 @@ async function update() {
       return;
     }
 
-    if (chosenOne.presence.custom_status) {
-      const allActivities = statuses.filter((e) => !e.ignoreWhenCounting);
-      let activityCount = allActivities.length;
+    if (chosenOne.presence.custom_status?.text) {
+      const base = chosenOne.presence.custom_status.text.trim();
+      const multipleActivityPart = calculateMultipleActivityPart(statuses)?.trim() ?? "";
 
-      const allActivitiesExceptTheOneChosen = statuses
-        .slice(1)
-        .filter((e) => !e.ignoreWhenCounting);
-
-      const uniqueEmojis = Array.from(
-        new Set(
-          allActivitiesExceptTheOneChosen.map(
-            (e) => e.presence.custom_status?.emoji_name,
-          ),
-        ),
-      ).filter((e) => e !== undefined && e !== null);
-
-      const allStylesOfMoreActivityThing: Record<MultipleActivityType, string> = {
-        plusCount: `(+${activityCount - 1})`,
-        plusEmoji: `(+${uniqueEmojis.join("")})`,
-        emoji: `(${uniqueEmojis.join("")})`,
-        none: "",
-      };
-
-      const text =
-        `${chosenOne.presence.custom_status.text} ${activityCount > 1 ? allStylesOfMoreActivityThing[env.SHOW_MULTIPLE_ACTIVITIES ? env.MULTIPLE_ACTIVITIES_STYLE : "none"] : ""}`.trim();
+      const text = trimTo(
+        multipleActivityPart ? `${base} ${multipleActivityPart}` : base,
+        MAX_LENGTH,
+      );
 
       chosenOne.presence.custom_status.text = text;
     }
