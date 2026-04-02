@@ -37,6 +37,27 @@ Run with [bun](https://bun.sh): `bun i`, `bun start`
 
 Experimental windows exe: see [WINDOWS.md](./WINDOWS.md)
 
+## Custom emojis
+
+To use custom emojis, you need to find their IDs. (and need Plutonium obviously)
+
+<details>
+<summary>How to find the ID of an emoji</summary>
+
+1. Type the emoji normally
+
+   ![img](/assets/emoji/1.png)
+
+2. Add a backslash (`\`) at the start of the emoji
+
+   ![img](/assets/emoji/2.png)
+
+3. Copy the ID (the long number)
+
+   ![img](/assets/emoji/3.png)
+
+</details>
+
 ## Help!!! Bug!!!
 
 Try redeploying the app, i might have fixed it already. If not, just open an issue!

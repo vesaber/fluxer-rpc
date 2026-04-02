@@ -20,6 +20,10 @@ const multipleActivityHelpString = `allowed: ${Object.keys(multipleActivityStyle
 type MultipleActivityStyles = z.infer<typeof multipleActivityStyles>;
 export type MultipleActivityType = keyof MultipleActivityStyles;
 
+export const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
+
+export const fluxerEmojiSchema = z.union([z.emoji(), snowflakeSchema]);
+
 export const ENV_VAR_GROUPS: Record<string, string[]> = {
   required: ["TOKEN", "DISCORD_ID"],
 
@@ -91,10 +95,10 @@ export const envSchema = {
     .describe("if false, disables the default status"),
 
   DEFAULT_STATUS_TEXT: z.string().optional().default("hiii"),
-  DEFAULT_STATUS_EMOJI: z.emoji().optional().default("🐬"),
+  DEFAULT_STATUS_EMOJI: fluxerEmojiSchema.optional().default("🐬"),
 
   MUSIC_TEXT: z.string().optional().default("{{artist}} - {{song}}"),
-  MUSIC_EMOJI: z.emoji().optional().default("🎧"),
+  MUSIC_EMOJI: fluxerEmojiSchema.optional().default("🎧"),
   MUSIC_APPS: z
     .string()
     .optional()
@@ -104,7 +108,7 @@ export const envSchema = {
   MUSIC_PRIORITY: z.coerce.number().optional().default(0),
 
   CODING_TEXT: z.string().optional().default("Coding!"),
-  CODING_EMOJI: z.emoji().optional().default("💻"),
+  CODING_EMOJI: fluxerEmojiSchema.optional().default("💻"),
   CODING_APPS: z
     .string()
     .optional()
@@ -114,7 +118,7 @@ export const envSchema = {
   CODING_PRIORITY: z.coerce.number().optional().default(2),
 
   PLAYING_TEXT: z.string().optional().default("{{action}} {{name}}"),
-  PLAYING_EMOJI: z.emoji().optional().default("🎮"),
+  PLAYING_EMOJI: fluxerEmojiSchema.optional().default("🎮"),
   PLAYING_PRIORITY: z.coerce.number().optional().default(1),
 
   SHOW_MUSIC_TIME: z.stringbool().optional().default(false),
@@ -197,5 +201,5 @@ export const envSchema = {
     .default("plusCount")
     .describe(multipleActivityHelpString),
 
-  WATCHING_EMOJI: z.emoji().optional().default("📺"),
+  WATCHING_EMOJI: fluxerEmojiSchema.optional().default("📺"),
 } as const;
