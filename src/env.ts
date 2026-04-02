@@ -6,6 +6,7 @@ import { genExampleEnv } from "../scripts/generate-default-env";
 import open from "open";
 import { existsSync } from "node:fs";
 import { hexToTerminal, Logger } from "./logger";
+import Bun from "bun";
 
 export const logger = new Logger(`${hexToTerminal("#ff0")}[env]${Logger.resetColor}`);
 
